@@ -1,5 +1,8 @@
 import { randomUUID } from 'node:crypto'
 
+const SECTIONS_ALL = 'Todas'
+const ROLES = ['master', 'admin']
+
 const createStore = ({ alertLimit = 30, messageLimit = 60 } = {}) => {
   const state = {
     alerts: [
@@ -26,6 +29,18 @@ const createStore = ({ alertLimit = 30, messageLimit = 60 } = {}) => {
       },
     ],
     subscriptions: new Map(),
+    users: [
+      {
+        createdAt: new Date().toISOString(),
+        email: 'admin@drbeting.local',
+        id: randomUUID(),
+        nombre: 'Admin drbeting',
+        rol: 'master',
+        secciones: SECTIONS_ALL,
+        estado: 'activo',
+        usuario: 'admin',
+      },
+    ],
   }
 
   return {
@@ -88,9 +103,75 @@ const createStore = ({ alertLimit = 30, messageLimit = 60 } = {}) => {
     upsertSubscription(subscription) {
       state.subscriptions.set(subscription.endpoint, subscription)
     },
+
+    // ── Users ──────────────────────────────────────────────
+    addUser(input) {
+      if (state.users.some((u) => u.usuario === input.usuario)) {
+        throw new Error('El nombre de usuario ya está en uso.')
+      }
+      if (input.email && state.users.some((u) => u.email === input.email)) {
+        throw new Error('El email ya está en uso.')
+      }
+      const user = {
+        createdAt: new Date().toISOString(),
+        email: input.email ?? '',
+        estado: input.estado === 'inactivo' ? 'inactivo' : 'activo',
+        id: randomUUID(),
+        nombre: input.nombre,
+        rol: ROLES.includes(input.rol) ? input.rol : 'admin',
+        secciones: input.secciones ?? SECTIONS_ALL,
+        usuario: input.usuario,
+      }
+      state.users = [...state.users, user]
+      return user
+    },
+    deleteUser(id) {
+      const user = state.users.find((u) => u.id === id)
+      if (!user) throw new Error('Usuario no encontrado.')
+      state.users = state.users.filter((u) => u.id !== id)
+      return user
+    },
+    getUsers() {
+      return state.users
+    },
+    updateUser(id, input) {
+      const index = state.users.findIndex((u) => u.id === id)
+      if (index === -1) throw new Error('Usuario no encontrado.')
+      const existing = state.users[index]
+      if (
+        input.usuario &&
+        input.usuario !== existing.usuario &&
+        state.users.some((u) => u.usuario === input.usuario)
+      ) {
+        throw new Error('El nombre de usuario ya está en uso.')
+      }
+      if (
+        input.email &&
+        input.email !== existing.email &&
+        state.users.some((u) => u.email === input.email)
+      ) {
+        throw new Error('El email ya está en uso.')
+      }
+      const updated = {
+        ...existing,
+        email: typeof input.email === 'string' ? input.email : existing.email,
+        estado:
+          input.estado === 'activo' || input.estado === 'inactivo' ? input.estado : existing.estado,
+        nombre: input.nombre ?? existing.nombre,
+        rol: ROLES.includes(input.rol) ? input.rol : existing.rol,
+        secciones: input.secciones ?? existing.secciones,
+        usuario: input.usuario ?? existing.usuario,
+      }
+      state.users = [
+        ...state.users.slice(0, index),
+        updated,
+        ...state.users.slice(index + 1),
+      ]
+      return updated
+    },
   }
 }
 
 const store = createStore()
 
-export { createStore, store }
+export { createStore, ROLES, store }

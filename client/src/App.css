@@ -1477,3 +1477,365 @@
   font-size: 0.85rem;
   color: #4ade80;
 }
+
+/* ── Usuarios page ──────────────────────────────────────── */
+.ub-page {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.ub-section {
+  background: #111318;
+  border: 1px solid #1f2030;
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.ub-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.1rem 1.5rem;
+  border-bottom: 1px solid #1f2030;
+}
+
+.ub-section-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #f0f0f0;
+}
+
+.ub-table-wrap {
+  overflow-x: auto;
+}
+
+.ub-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+}
+
+.ub-table thead tr {
+  background: #15171e;
+}
+
+.ub-table th {
+  text-align: left;
+  padding: 0.75rem 1rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: #6b7280;
+  white-space: nowrap;
+}
+
+.ub-table td {
+  padding: 0.9rem 1rem;
+  color: #d1d5db;
+  border-bottom: 1px solid #15171e;
+  vertical-align: middle;
+}
+
+.ub-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.ub-table tbody tr:hover td {
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.ub-td-num {
+  color: #9ca3af;
+  font-weight: 500;
+  min-width: 36px;
+}
+
+.ub-td-email {
+  color: #9ca3af;
+  font-size: 0.85rem;
+}
+
+/* Badges */
+.ub-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 99px;
+  padding: 0.2rem 0.75rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.ub-badge-master {
+  background: rgba(139, 92, 246, 0.2);
+  color: #c4b5fd;
+}
+
+.ub-badge-admin {
+  background: rgba(59, 130, 246, 0.2);
+  color: #93c5fd;
+}
+
+.ub-badge-estado-activo {
+  background: rgba(34, 197, 94, 0.15);
+  color: #86efac;
+}
+
+.ub-badge-estado-inactivo {
+  background: rgba(107, 114, 128, 0.2);
+  color: #9ca3af;
+}
+
+/* Buttons */
+.ub-btn-gold {
+  background: #c9a843;
+  border: 0;
+  border-radius: 10px;
+  color: #0a0b0f;
+  padding: 0.65rem 1.25rem;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: opacity 0.15s, transform 0.1s;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.ub-btn-gold:hover:not(:disabled) {
+  opacity: 0.88;
+  transform: translateY(-1px);
+}
+
+.ub-btn-gold:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.ub-btn-edit {
+  background: none;
+  border: 1px solid #374151;
+  border-radius: 8px;
+  color: #d1d5db;
+  padding: 0.35rem 0.9rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.ub-btn-edit:hover {
+  border-color: #9ca3af;
+  color: #f0f0f0;
+}
+
+.ub-btn-outline {
+  background: none;
+  border: 1px solid #374151;
+  border-radius: 10px;
+  color: #d1d5db;
+  padding: 0.65rem 1.25rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.ub-btn-outline:hover {
+  border-color: #9ca3af;
+  color: #f0f0f0;
+}
+
+.ub-empty {
+  margin: 2.5rem auto;
+  text-align: center;
+  color: #4b5563;
+  font-size: 0.9rem;
+  padding: 0 1rem;
+}
+
+/* Modal overlay */
+.ub-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  padding: 1rem;
+}
+
+.ub-modal {
+  background: #111318;
+  border: 1px solid #1f2030;
+  border-radius: 16px;
+  width: min(520px, 100%);
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.ub-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.1rem 1.5rem;
+  border-bottom: 1px solid #1f2030;
+  flex-shrink: 0;
+}
+
+.ub-modal-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #f0f0f0;
+}
+
+.ub-modal-close {
+  background: none;
+  border: 0;
+  color: #6b7280;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s;
+}
+
+.ub-modal-close:hover {
+  color: #f0f0f0;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.ub-modal-body {
+  padding: 1.5rem;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.ub-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+@media (max-width: 480px) {
+  .ub-form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.ub-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.ub-field-full {
+  grid-column: 1 / -1;
+}
+
+.ub-field-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  color: #6b7280;
+  text-transform: uppercase;
+}
+
+.ub-input {
+  background: #0d0e14;
+  border: 1px solid #1f2030;
+  border-radius: 10px;
+  color: #e2e4e9;
+  padding: 0.7rem 0.9rem;
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.15s;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.ub-input:focus {
+  border-color: #c9a843;
+}
+
+.ub-input::placeholder {
+  color: #374151;
+}
+
+.ub-select {
+  background: #0d0e14;
+  border: 1px solid #1f2030;
+  border-radius: 10px;
+  color: #e2e4e9;
+  padding: 0.7rem 2rem 0.7rem 0.9rem;
+  font-size: 0.9rem;
+  outline: none;
+  appearance: none;
+  cursor: pointer;
+  width: 100%;
+  box-sizing: border-box;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.65rem center;
+  background-size: 16px;
+  transition: border-color 0.15s;
+}
+
+.ub-select:focus {
+  border-color: #c9a843;
+}
+
+.ub-form-error {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #f87171;
+}
+
+.ub-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding-top: 0.25rem;
+}
+
+.ub-section-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.ub-search-input {
+  background: #0d0e14;
+  border: 1px solid #1f2030;
+  border-radius: 8px;
+  color: #d1d5db;
+  padding: 0.55rem 0.85rem;
+  font-size: 0.85rem;
+  outline: none;
+  transition: border-color 0.15s;
+  width: 200px;
+}
+
+.ub-search-input:focus {
+  border-color: #c9a843;
+}
+
+.ub-search-input::placeholder {
+  color: #4b5563;
+}

@@ -3,6 +3,8 @@ import { Router } from 'express'
 import { getAccount, getBaseUrl } from '../services/hgcash.js'
 import { requireText } from '../utils/validate.js'
 
+const VALID_ROLES = ['master', 'admin']
+
 const createApiRouter = ({ config, io, pushToSubscribers, store }) => {
   const router = Router()
 
@@ -142,6 +144,50 @@ const createApiRouter = ({ config, io, pushToSubscribers, store }) => {
       // Future: auto-verify deposits on event.type === 'deposit.confirmed'
     }
     response.json({ received: true })
+  })
+
+  // ── Users ─────────────────────────────────────────────────
+
+  router.get('/users', (_request, response) => {
+    response.json({ users: store.getUsers() })
+  })
+
+  router.post('/users', (request, response, next) => {
+    try {
+      const body = request.body ?? {}
+      const user = store.addUser({
+        email: typeof body.email === 'string' ? body.email.trim().toLowerCase() : '',
+        estado: body.estado,
+        nombre: requireText(body.nombre, 'El nombre', 80),
+        rol: VALID_ROLES.includes(body.rol) ? body.rol : 'admin',
+        secciones: typeof body.secciones === 'string' && body.secciones.trim()
+          ? body.secciones.trim()
+          : 'Todas',
+        usuario: requireText(body.usuario, 'El usuario', 40),
+      })
+      response.status(201).json({ user })
+    } catch (error) {
+      next(error)
+    }
+  })
+
+  router.put('/users/:id', (request, response, next) => {
+    try {
+      const body = request.body ?? {}
+      const user = store.updateUser(request.params.id, {
+        email: typeof body.email === 'string' ? body.email.trim().toLowerCase() : undefined,
+        estado: body.estado,
+        nombre: body.nombre ? requireText(body.nombre, 'El nombre', 80) : undefined,
+        rol: VALID_ROLES.includes(body.rol) ? body.rol : undefined,
+        secciones: typeof body.secciones === 'string' && body.secciones.trim()
+          ? body.secciones.trim()
+          : undefined,
+        usuario: body.usuario ? requireText(body.usuario, 'El usuario', 40) : undefined,
+      })
+      response.json({ user })
+    } catch (error) {
+      next(error)
+    }
   })
 
   return router

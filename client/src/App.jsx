@@ -6,6 +6,7 @@ import NotificationsTray from './components/NotificationsTray'
 import { useAppContext } from './context/useAppContext'
 import CuentasPage from './pages/CuentasPage'
 import LoginPage from './pages/LoginPage'
+import UsuariosPage from './pages/UsuariosPage'
 
 /* ── Inline SVG icons ──────────────────────────────────── */
 function IcoChats() {
@@ -166,6 +167,8 @@ function App() {
               ? 'Chats'
               : activeNav === 'cuentas'
               ? 'Cuentas Bancarias'
+              : activeNav === 'usuarios'
+              ? 'Usuarios'
               : activeNav.charAt(0).toUpperCase() + activeNav.slice(1)}
           </h1>
           <div className="bp-header-right">
@@ -197,6 +200,8 @@ function App() {
           />
         ) : activeNav === 'cuentas' ? (
           <CuentasPage />
+        ) : activeNav === 'usuarios' ? (
+          <UsuariosPage />
         ) : (
           <div className="bp-placeholder">
             <div className="bp-placeholder-icon">🚧</div>

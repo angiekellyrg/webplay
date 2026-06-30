@@ -28,10 +28,16 @@ const api = {
       body: JSON.stringify(input),
       method: 'POST',
     }),
+  createUser: (input) =>
+    request('/api/users', {
+      body: JSON.stringify(input),
+      method: 'POST',
+    }),
   getAlerts: () => request('/api/alerts'),
   getConfig: () => request('/api/config'),
   getHgcashConfig: () => request('/api/hgcash/config'),
   getMessages: () => request('/api/chat/messages'),
+  getUsers: () => request('/api/users'),
   saveHgcashConfig: (input) =>
     request('/api/hgcash/config', {
       body: JSON.stringify(input),
@@ -48,6 +54,11 @@ const api = {
     request('/api/push/unsubscribe', {
       body: JSON.stringify({ endpoint }),
       method: 'POST',
+    }),
+  updateUser: (id, input) =>
+    request(`/api/users/${id}`, {
+      body: JSON.stringify(input),
+      method: 'PUT',
     }),
 }
 

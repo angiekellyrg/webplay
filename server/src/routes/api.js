@@ -1,5 +1,6 @@
 import { Router } from 'express'
 
+import { getAccount, getBaseUrl } from '../services/hgcash.js'
 import { requireText } from '../utils/validate.js'
 
 const createApiRouter = ({ config, io, pushToSubscribers, store }) => {
@@ -79,6 +80,68 @@ const createApiRouter = ({ config, io, pushToSubscribers, store }) => {
     } catch (error) {
       next(error)
     }
+  })
+
+  // ── HG Cash ──────────────────────────────────────────────
+
+  router.get('/hgcash/config', (_request, response) => {
+    const cfg = store.getHgcashConfig()
+    const mask = (token) =>
+      token && token.length > 8
+        ? token.slice(0, 6) + '...' + token.slice(-4)
+        : token
+        ? '****'
+        : ''
+    response.json({
+      apiToken: mask(cfg.apiToken),
+      apiTokenSet: Boolean(cfg.apiToken),
+      autoVerifyDeposits: cfg.autoVerifyDeposits,
+      environment: cfg.environment,
+      webhookSecretSet: Boolean(cfg.webhookSecret),
+    })
+  })
+
+  router.post('/hgcash/config', (request, response, next) => {
+    try {
+      const body = request.body ?? {}
+      const updated = store.setHgcashConfig({
+        apiToken:
+          typeof body.apiToken === 'string' && body.apiToken !== ''
+            ? body.apiToken
+            : store.getHgcashConfig().apiToken,
+        autoVerifyDeposits: body.autoVerifyDeposits,
+        environment: body.environment,
+        webhookSecret:
+          typeof body.webhookSecret === 'string' && body.webhookSecret !== ''
+            ? body.webhookSecret
+            : store.getHgcashConfig().webhookSecret,
+      })
+      response.json({ ok: true, environment: updated.environment })
+    } catch (error) {
+      next(error)
+    }
+  })
+
+  router.post('/hgcash/test', async (_request, response, next) => {
+    try {
+      const cfg = store.getHgcashConfig()
+      if (!cfg.apiToken) {
+        return response.status(400).json({ message: 'Configure el API Token primero.' })
+      }
+      const account = await getAccount(cfg.apiToken, cfg.environment)
+      response.json({ account, ok: true })
+    } catch (error) {
+      next(error)
+    }
+  })
+
+  router.post('/hgcash/webhook', (request, response) => {
+    // Webhook receiver — extend here to process deposit confirmations
+    const event = request.body
+    if (event && store.getHgcashConfig().autoVerifyDeposits) {
+      // Future: auto-verify deposits on event.type === 'deposit.confirmed'
+    }
+    response.json({ received: true })
   })
 
   return router

@@ -11,6 +11,12 @@ const createStore = ({ alertLimit = 30, messageLimit = 60 } = {}) => {
         title: 'Sistema iniciado',
       },
     ],
+    hgcashConfig: {
+      apiToken: '',
+      autoVerifyDeposits: true,
+      environment: 'production',
+      webhookSecret: '',
+    },
     messages: [
       {
         author: 'System',
@@ -49,6 +55,9 @@ const createStore = ({ alertLimit = 30, messageLimit = 60 } = {}) => {
     getAlerts() {
       return state.alerts
     },
+    getHgcashConfig() {
+      return state.hgcashConfig
+    },
     getMessages() {
       return state.messages
     },
@@ -57,6 +66,24 @@ const createStore = ({ alertLimit = 30, messageLimit = 60 } = {}) => {
     },
     removeSubscription(endpoint) {
       state.subscriptions.delete(endpoint)
+    },
+    setHgcashConfig(input) {
+      state.hgcashConfig = {
+        apiToken: typeof input.apiToken === 'string' ? input.apiToken : state.hgcashConfig.apiToken,
+        autoVerifyDeposits:
+          typeof input.autoVerifyDeposits === 'boolean'
+            ? input.autoVerifyDeposits
+            : state.hgcashConfig.autoVerifyDeposits,
+        environment:
+          input.environment === 'production' || input.environment === 'sandbox'
+            ? input.environment
+            : state.hgcashConfig.environment,
+        webhookSecret:
+          typeof input.webhookSecret === 'string'
+            ? input.webhookSecret
+            : state.hgcashConfig.webhookSecret,
+      }
+      return state.hgcashConfig
     },
     upsertSubscription(subscription) {
       state.subscriptions.set(subscription.endpoint, subscription)

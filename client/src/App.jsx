@@ -4,6 +4,7 @@ import './App.css'
 import ChatPanel from './components/ChatPanel'
 import NotificationsTray from './components/NotificationsTray'
 import { useAppContext } from './context/useAppContext'
+import CuentasPage from './pages/CuentasPage'
 import LoginPage from './pages/LoginPage'
 
 /* ── Inline SVG icons ──────────────────────────────────── */
@@ -160,7 +161,13 @@ function App() {
       {/* ── Main content ────────────────────────────── */}
       <div className="bp-main">
         <header className="bp-header">
-          <h1 className="bp-header-title">Chats</h1>
+          <h1 className="bp-header-title">
+            {activeNav === 'chats'
+              ? 'Chats'
+              : activeNav === 'cuentas'
+              ? 'Cuentas Bancarias'
+              : activeNav.charAt(0).toUpperCase() + activeNav.slice(1)}
+          </h1>
           <div className="bp-header-right">
             <div className="bp-casino-search">
               <IcoSearch />
@@ -188,6 +195,8 @@ function App() {
             messages={messages}
             onSubmit={sendMessage}
           />
+        ) : activeNav === 'cuentas' ? (
+          <CuentasPage />
         ) : (
           <div className="bp-placeholder">
             <div className="bp-placeholder-icon">🚧</div>

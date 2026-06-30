@@ -1031,3 +1031,449 @@
     display: none;
   }
 }
+
+/* ── Cuentas Bancarias page ─────────────────────────────── */
+.bp-cuentas {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.bp-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+
+@media (max-width: 900px) {
+  .bp-stat-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.bp-stat-card {
+  background: #111318;
+  border: 1px solid #1f2030;
+  border-radius: 14px;
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.bp-stat-label {
+  font-size: 0.82rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.bp-stat-value {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: #f0f0f0;
+  line-height: 1.1;
+}
+
+.bp-hgcash-status.connected {
+  color: #4ade80;
+}
+
+.bp-cuentas-body {
+  background: #111318;
+  border: 1px solid #1f2030;
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.bp-cuentas-tabs {
+  display: flex;
+  gap: 0.5rem;
+  padding: 1rem 1.25rem 0;
+  border-bottom: 1px solid #1f2030;
+}
+
+.bp-cuentas-tab {
+  background: none;
+  border: 2px solid transparent;
+  border-radius: 8px 8px 0 0;
+  padding: 0.5rem 1.1rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #6b7280;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: color 0.15s, border-color 0.15s;
+  letter-spacing: 0.04em;
+  margin-bottom: -2px;
+}
+
+.bp-cuentas-tab.active {
+  color: #4ade80;
+  border-color: #4ade80;
+}
+
+.bp-cuentas-tab-gold {
+  border-color: #c9a843;
+  color: #c9a843;
+}
+
+.bp-cuentas-tab-gold.active {
+  color: #c9a843;
+  border-color: #c9a843;
+}
+
+.bp-tab-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #4b5563;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.bp-tab-dot.active {
+  background: #4ade80;
+}
+
+.bp-cuentas-panel {
+  padding: 1.5rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.bp-cuentas-empty {
+  margin: 0;
+  color: #4b5563;
+  font-size: 0.9rem;
+  text-align: center;
+  padding: 2rem;
+}
+
+.bp-cuentas-field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+
+.bp-cuentas-field-row-split {
+  grid-template-columns: 1fr auto;
+  align-items: flex-end;
+}
+
+.bp-cuentas-field-wide {
+  grid-column: 1;
+}
+
+.bp-cuentas-field-action {
+  display: flex;
+  align-items: flex-end;
+  padding-bottom: 1px;
+}
+
+@media (max-width: 700px) {
+  .bp-cuentas-field-row {
+    grid-template-columns: 1fr;
+  }
+
+  .bp-cuentas-field-row-split {
+    grid-template-columns: 1fr;
+  }
+}
+
+.bp-cuentas-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.bp-field-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  color: #6b7280;
+  text-transform: uppercase;
+}
+
+.bp-secret-input {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.bp-text-input {
+  flex: 1;
+  background: #0d0e14;
+  border: 1px solid #1f2030;
+  border-radius: 10px;
+  color: #e2e4e9;
+  padding: 0.75rem 2.5rem 0.75rem 0.9rem;
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.15s;
+  width: 100%;
+}
+
+.bp-text-input:focus {
+  border-color: #c9a843;
+}
+
+.bp-text-input::placeholder {
+  color: #374151;
+}
+
+.bp-eye-btn {
+  position: absolute;
+  right: 0.65rem;
+  background: none;
+  border: 0;
+  color: #6b7280;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  padding: 0.25rem;
+  transition: color 0.15s;
+}
+
+.bp-eye-btn:hover {
+  color: #d1d5db;
+}
+
+.bp-select {
+  background: #0d0e14;
+  border: 1px solid #1f2030;
+  border-radius: 10px;
+  color: #e2e4e9;
+  padding: 0.75rem 2rem 0.75rem 0.9rem;
+  font-size: 0.9rem;
+  outline: none;
+  appearance: none;
+  cursor: pointer;
+  width: 100%;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.65rem center;
+  background-size: 16px;
+  transition: border-color 0.15s;
+}
+
+.bp-select:focus {
+  border-color: #c9a843;
+}
+
+.bp-btn-outline {
+  background: none;
+  border: 1px solid #374151;
+  border-radius: 10px;
+  color: #d1d5db;
+  padding: 0.75rem 1.25rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color 0.15s, color 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.bp-btn-outline:hover:not(:disabled) {
+  border-color: #9ca3af;
+  color: #f0f0f0;
+}
+
+.bp-btn-outline:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.bp-account-info {
+  margin-top: 0.25rem;
+}
+
+.bp-account-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+@media (max-width: 600px) {
+  .bp-account-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.bp-account-card {
+  background: rgba(34, 197, 94, 0.06);
+  border: 1px solid rgba(34, 197, 94, 0.2);
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.bp-account-card-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  color: #6b7280;
+  text-transform: uppercase;
+}
+
+.bp-account-card-value {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #f0f0f0;
+}
+
+.bp-account-mono {
+  font-family: 'Courier New', monospace;
+  font-size: 0.88rem;
+  letter-spacing: 0.04em;
+}
+
+.bp-webhook-box {
+  background: #0d0e14;
+  border: 1px solid #1f2030;
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.bp-webhook-label {
+  font-size: 0.82rem;
+  color: #9ca3af;
+  font-weight: 500;
+}
+
+.bp-webhook-url-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.bp-webhook-url {
+  font-size: 0.85rem;
+  color: #d1d5db;
+  font-family: 'Courier New', monospace;
+  word-break: break-all;
+}
+
+.bp-copy-btn {
+  background: #1a1c24;
+  border: 1px solid #2a2d3a;
+  border-radius: 6px;
+  color: #9ca3af;
+  padding: 0.3rem 0.6rem;
+  font-size: 0.75rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  white-space: nowrap;
+  transition: color 0.15s, background 0.15s;
+  flex-shrink: 0;
+}
+
+.bp-copy-btn:hover {
+  color: #f0f0f0;
+  background: #252733;
+}
+
+.bp-cuentas-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.bp-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.88rem;
+  color: #d1d5db;
+  cursor: pointer;
+  user-select: none;
+}
+
+.bp-checkbox-label input[type='checkbox'] {
+  display: none;
+}
+
+.bp-checkbox-custom {
+  width: 18px;
+  height: 18px;
+  border: 2px solid #374151;
+  border-radius: 4px;
+  background: #0d0e14;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.bp-checkbox-label input[type='checkbox']:checked ~ .bp-checkbox-custom {
+  background: #c9a843;
+  border-color: #c9a843;
+}
+
+.bp-checkbox-label input[type='checkbox']:checked ~ .bp-checkbox-custom::after {
+  content: '';
+  display: block;
+  width: 5px;
+  height: 9px;
+  border: 2px solid #0a0b0f;
+  border-top: 0;
+  border-left: 0;
+  transform: rotate(45deg) translateY(-1px);
+}
+
+.bp-btn-gold {
+  background: #c9a843;
+  border: 0;
+  border-radius: 10px;
+  color: #0a0b0f;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.1s;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  white-space: nowrap;
+}
+
+.bp-btn-gold:hover:not(:disabled) {
+  opacity: 0.88;
+  transform: translateY(-1px);
+}
+
+.bp-btn-gold:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.bp-cuentas-error {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #f87171;
+}
+
+.bp-cuentas-success {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #4ade80;
+}

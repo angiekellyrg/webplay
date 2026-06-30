@@ -30,12 +30,20 @@ const api = {
     }),
   getAlerts: () => request('/api/alerts'),
   getConfig: () => request('/api/config'),
+  getHgcashConfig: () => request('/api/hgcash/config'),
   getMessages: () => request('/api/chat/messages'),
+  saveHgcashConfig: (input) =>
+    request('/api/hgcash/config', {
+      body: JSON.stringify(input),
+      method: 'POST',
+    }),
   subscribeToPush: (subscription) =>
     request('/api/push/subscribe', {
       body: JSON.stringify({ subscription }),
       method: 'POST',
     }),
+  testHgcashConnection: () =>
+    request('/api/hgcash/test', { method: 'POST' }),
   unsubscribeFromPush: (endpoint) =>
     request('/api/push/unsubscribe', {
       body: JSON.stringify({ endpoint }),

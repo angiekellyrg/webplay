@@ -35,6 +35,26 @@ const createApiRouter = ({ config, io, pushToSubscribers, store }) => {
     })
   })
 
+  router.post('/chat/messages', async (request, response, next) => {
+    try {
+      const message = store.addMessage({
+        author: requireText(request.body.author, 'El nombre', 40),
+        text: requireText(request.body.text, 'El mensaje', 240),
+      })
+
+      await pushToSubscribers({
+        body: message.text,
+        data: { url: '/chat' },
+        tag: `chat-${message.id}`,
+        title: `Nuevo mensaje de ${message.author}`,
+      })
+
+      response.status(201).json({ message })
+    } catch (error) {
+      next(error)
+    }
+  })
+
   router.post('/alerts', async (request, response, next) => {
     try {
       const alert = store.addAlert({

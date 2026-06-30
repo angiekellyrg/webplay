@@ -2,10 +2,15 @@ import { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 
 import { usePushNotifications } from '../hooks/usePushNotifications'
 import { api } from '../services/api'
-import { getSocket } from '../services/socket'
 import { loadProfile, saveProfile } from '../utils/storage'
 
 const AppContext = createContext(null)
+let notificationIdCounter = 0
+
+const createNotificationId = () => {
+  notificationIdCounter += 1
+  return `notif-${Date.now()}-${notificationIdCounter}`
+}
 
 function AppProvider({ children }) {
   const [runtimeConfig, setRuntimeConfig] = useState({
@@ -14,7 +19,7 @@ function AppProvider({ children }) {
   })
   const [alerts, setAlerts] = useState([])
   const [messages, setMessages] = useState([])
-  const [connectionStatus, setConnectionStatus] = useState('connecting')
+  const [connectionStatus] = useState('connected')
   const [notifications, setNotifications] = useState([])
   const [routeHistory, setRouteHistory] = useState([])
   const [profile, setProfile] = useState(loadProfile)
@@ -22,7 +27,7 @@ function AppProvider({ children }) {
   const pushNotification = useCallback((notification) => {
     setNotifications((current) => [
       {
-        id: crypto.randomUUID(),
+        id: createNotificationId(),
         ...notification,
       },
       ...current,
@@ -82,50 +87,6 @@ function AppProvider({ children }) {
     }
   }, [pushNotification])
 
-  useEffect(() => {
-    const socket = getSocket()
-
-    const handleConnect = () => {
-      setConnectionStatus('connected')
-    }
-
-    const handleDisconnect = () => {
-      setConnectionStatus('disconnected')
-    }
-
-    const handleAlert = (alert) => {
-      setAlerts((current) => [alert, ...current].slice(0, 30))
-      pushNotification({
-        title: alert.title,
-        message: alert.message,
-        tone: alert.level === 'critical' ? 'danger' : 'accent',
-      })
-    }
-
-    const handleMessage = (message) => {
-      setMessages((current) => [message, ...current].slice(0, 60))
-      pushNotification({
-        title: `Mensaje de ${message.author}`,
-        message: message.text,
-        tone: 'neutral',
-      })
-    }
-
-    socket.on('connect', handleConnect)
-    socket.on('disconnect', handleDisconnect)
-    socket.on('alert:new', handleAlert)
-    socket.on('chat:message', handleMessage)
-    socket.connect()
-
-    return () => {
-      socket.off('connect', handleConnect)
-      socket.off('disconnect', handleDisconnect)
-      socket.off('alert:new', handleAlert)
-      socket.off('chat:message', handleMessage)
-      socket.disconnect()
-    }
-  }, [pushNotification])
-
   const pushState = usePushNotifications({
     publicKey: runtimeConfig.pushPublicKey,
     onPushMessage: (payload) => {
@@ -142,18 +103,9 @@ function AppProvider({ children }) {
   }, [])
 
   const sendMessage = useCallback(async (input) => {
-    const socket = getSocket()
-
-    return new Promise((resolve, reject) => {
-      socket.emit('chat:send', input, (response) => {
-        if (response?.ok) {
-          resolve(response.message)
-          return
-        }
-
-        reject(new Error(response?.message || 'No se pudo enviar el mensaje.'))
-      })
-    })
+    const response = await api.sendMessage(input)
+    setMessages((current) => [response.message, ...current].slice(0, 60))
+    return response.message
   }, [])
 
   const value = useMemo(

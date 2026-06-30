@@ -36,6 +36,11 @@ const api = {
   getConfig: () => request('/api/config'),
   getHgcashConfig: () => request('/api/hgcash/config'),
   getMessages: () => request('/api/chat/messages'),
+  sendMessage: (input) =>
+    request('/api/chat/messages', {
+      body: JSON.stringify(input),
+      method: 'POST',
+    }),
   getUsers: () => request('/api/users'),
   saveHgcashConfig: (input) =>
     request('/api/hgcash/config', {

@@ -90,8 +90,8 @@ function App() {
   )
   const [activeNav, setActiveNav] = useState('chats')
 
-  const handleLogin = (username) => {
-    const displayName = username.charAt(0).toUpperCase() + username.slice(1)
+  const handleLogin = (usuario) => {
+    const displayName = usuario.nombre || usuario.correo || 'Admin'
     localStorage.setItem('beting-auth', 'true')
     localStorage.setItem('beting-user', displayName)
     setIsAuthenticated(true)

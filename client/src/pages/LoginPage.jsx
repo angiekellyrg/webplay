@@ -1,7 +1,9 @@
 import { useState } from 'react'
 
+const LOGIN_API = 'https://vrtt7h3co2.execute-api.us-east-2.amazonaws.com/login'
+
 function LoginPage({ onLogin }) {
-  const [username, setUsername] = useState('')
+  const [correo, setCorreo] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -10,11 +12,20 @@ function LoginPage({ onLogin }) {
     e.preventDefault()
     setError('')
     setLoading(true)
-    await new Promise((r) => setTimeout(r, 500))
-    if (username === 'admin' && password === 'i20lon7LG67L') {
-      onLogin(username)
-    } else {
-      setError('Usuario o contraseña incorrectos.')
+    try {
+      const res = await fetch(LOGIN_API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ correo, contrasena: password }),
+      })
+      if (res.ok) {
+        const data = await res.json()
+        onLogin(data.usuario)
+      } else {
+        setError('Usuario o contraseña incorrectos.')
+      }
+    } catch {
+      setError('Error de conexión. Intenta de nuevo.')
     }
     setLoading(false)
   }
@@ -29,14 +40,14 @@ function LoginPage({ onLogin }) {
         </div>
         <form onSubmit={handleSubmit} className="bp-login-form">
           <div className="bp-login-field">
-            <label htmlFor="lp-user">Usuario</label>
+            <label htmlFor="lp-user">Correo</label>
             <input
               id="lp-user"
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              placeholder="Ingresa tu usuario"
-              autoComplete="username"
+              type="email"
+              value={correo}
+              onChange={(e) => setCorreo(e.target.value)}
+              placeholder="Ingresa tu correo"
+              autoComplete="email"
               required
             />
           </div>
@@ -56,7 +67,7 @@ function LoginPage({ onLogin }) {
           <button
             type="submit"
             className="bp-login-btn"
-            disabled={loading || !username || !password}
+            disabled={loading || !correo || !password}
           >
             {loading ? 'Ingresando...' : 'Ingresar'}
           </button>

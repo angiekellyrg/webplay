@@ -106,7 +106,7 @@ function ChatPanel({ authUser, connectionStatus, socioId }) {
     setLoadingMessages(true)
     try {
       const data = await api.getChatHistory(socioId, chat.clienteId)
-      const sorted = [...(data.mensajes || [])].sort((a, b) => a.fecha - b.fecha)
+      const sorted = [...(data?.mensajes || [])].sort((a, b) => a.fecha - b.fecha)
       setMessages(sorted)
     } catch (err) {
       setMessagesError(err.message)
@@ -129,11 +129,24 @@ function ChatPanel({ authUser, connectionStatus, socioId }) {
     return true
   })
 
-  /* ── Send (placeholder — no send API yet) ────────────── */
+  /* ── Send message ────────────────────────────────────── */
   const handleSend = async (e) => {
     e.preventDefault()
-    if (!inputText.trim() || !activeChat) return
-    setSendStatus({ pending: false, error: 'Envío de mensajes no disponible aún.' })
+    if (!inputText.trim() || !activeChat || sendStatus.pending) return
+    const texto = inputText.trim()
+    setInputText('')
+    setSendStatus({ pending: true, error: '' })
+    const optimistic = { mensaje: texto, sender: 'SOCIO', fecha: Math.floor(Date.now() / 1000) }
+    setMessages((prev) => [...prev, optimistic])
+    try {
+      await api.sendChatMessage(socioId, activeChat.clienteId, texto)
+      setSendStatus({ pending: false, error: '' })
+    } catch (err) {
+      setSendStatus({ pending: false, error: err.message })
+      // remove optimistic message on failure
+      setMessages((prev) => prev.filter((m) => m !== optimistic))
+      setInputText(texto)
+    }
   }
 
   const handleKeyDown = (e) => {

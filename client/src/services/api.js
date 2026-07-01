@@ -61,6 +61,8 @@ const api = {
     chatRequest('/chat/list', { op: 'buscar', socioId }),
   getChatHistory: (socioId, clienteId) =>
     chatRequest('/chat/history', { op: 'buscarhistorialid', socioId, clienteId }),
+  sendChatMessage: (socioId, clienteId, mensaje) =>
+    chatRequest('/chat/send', { socioId, clienteId, mensaje, sender: 'SOCIO' }),
   getHgcashConfig: () => request('/api/hgcash/config'),
   getMessages: () => request('/api/chat/messages'),
   sendMessage: (input) =>

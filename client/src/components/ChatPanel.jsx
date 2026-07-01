@@ -83,7 +83,7 @@ function ChatPanel({ authUser, connectionStatus, socioId }) {
     setChatsError('')
     try {
       const data = await api.getChatList(socioId)
-      const sorted = [...(data.chats || [])].sort(
+      const sorted = [...(data?.chats || [])].sort(
         (a, b) => b.fechaUltimoMensaje - a.fechaUltimoMensaje,
       )
       setChats(sorted)

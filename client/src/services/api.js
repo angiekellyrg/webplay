@@ -30,8 +30,12 @@ const chatRequest = async (path, body) => {
     body: JSON.stringify(body),
   })
 
-  const isJson = response.headers.get('content-type')?.includes('application/json')
-  const payload = isJson ? await response.json() : null
+  let payload = null
+  try {
+    payload = await response.json()
+  } catch {
+    // response body is not JSON
+  }
 
   if (!response.ok) {
     throw new Error(payload?.message || 'La solicitud no pudo completarse.')

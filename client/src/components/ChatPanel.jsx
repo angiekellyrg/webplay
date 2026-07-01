@@ -1,105 +1,23 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
+import { api } from '../services/api'
 import { formatTimestamp } from '../utils/time'
 
-/* ── Mock data ─────────────────────────────────────────── */
-const MOCK_CHATS = [
-  {
-    id: 'c1',
-    username: 'rio012234',
-    lastMessage: '✅ ¡Fichas cargadas! Se acreditaron $2,000 en t...',
-    timeAgo: '2d',
-    tags: [],
-    messages: [
-      { id: 'c1m1', from: 'user', text: 'Hola, buen día. Realicé una transferencia hace un rato, ¿ya se acreditó?', ts: '2024-06-24T09:55:00Z' },
-      { id: 'c1m2', from: 'admin', text: '✅ ¡Fichas cargadas! Se acreditaron $2,000 en tu cuenta. ¡Cualquier consulta estamos a disposición!', ts: '2024-06-24T10:02:00Z' },
-    ],
-  },
-  {
-    id: 'c2',
-    username: 'mario032746',
-    lastMessage: '¡Hola mario032746! 👋 Bienvenido a Dr.Beting...',
-    timeAgo: '2d',
-    tags: [],
-    messages: [
-      { id: 'c2m1', from: 'user', text: '¿Cómo me registro en la plataforma?', ts: '2024-06-24T08:10:00Z' },
-      { id: 'c2m2', from: 'admin', text: '¡Hola mario032746! 👋 Bienvenido a Dr.Beting. Para registrarte, solo haz clic en el botón de registro y completa tus datos.', ts: '2024-06-24T08:12:00Z' },
-    ],
-  },
-  {
-    id: 'c3',
-    username: 'Jona183230',
-    lastMessage: 'Buenas, damos bonos del 100 % de lunes a viern...',
-    timeAgo: '2d',
-    tags: ['Soporte', 'Finalizar'],
-    messages: [
-      { id: 'c3m1', from: 'user', text: '¿Tienen bonos disponibles?', ts: '2024-06-24T11:00:00Z' },
-      { id: 'c3m2', from: 'admin', text: 'Buenas, damos bonos del 100 % de lunes a viernes para depósitos desde $1.000.', ts: '2024-06-24T11:03:00Z' },
-    ],
-  },
-  {
-    id: 'c4',
-    username: 'maximiliano062558',
-    lastMessage: 'su contraseña es privada, por lo tanto en eso no...',
-    timeAgo: '3d',
-    tags: ['Soporte', 'Finalizar'],
-    messages: [
-      { id: 'c4m1', from: 'user', text: 'Olvidé mi contraseña, ¿me la pueden dar?', ts: '2024-06-23T14:20:00Z' },
-      { id: 'c4m2', from: 'admin', text: 'su contraseña es privada, por lo tanto en eso no podemos ayudarte. Por favor usa la opción de recuperar contraseña.', ts: '2024-06-23T14:22:00Z' },
-    ],
-  },
-  {
-    id: 'c5',
-    username: 'damian091031',
-    lastMessage: '¿me pasa el link por este medio?',
-    timeAgo: '6d',
-    tags: ['Soporte', 'Finalizar'],
-    messages: [
-      { id: 'c5m1', from: 'user', text: '¿me pasa el link por este medio?', ts: '2024-06-20T16:45:00Z' },
-      { id: 'c5m2', from: 'admin', text: 'Claro, el link de acceso es: https://drbeting.com. ¡Cualquier consulta, estamos aquí!', ts: '2024-06-20T16:47:00Z' },
-    ],
-  },
-  {
-    id: 'c6',
-    username: 'olgadelasmercedes023932',
-    lastMessage: 'buenas tardes el comprobante no corresponde ...',
-    timeAgo: '7d',
-    tags: [],
-    messages: [
-      { id: 'c6m1', from: 'user', text: 'buenas tardes el comprobante no corresponde al monto que envié', ts: '2024-06-19T17:00:00Z' },
-      { id: 'c6m2', from: 'admin', text: 'Buenas tardes. Estamos verificando el comprobante. Te respondemos en breve.', ts: '2024-06-19T17:05:00Z' },
-    ],
-  },
-  {
-    id: 'c7',
-    username: 'chiri174703',
-    lastMessage: 'Hola buenas tardes pudo solucionar su inconven...',
-    timeAgo: '7d',
-    tags: [],
-    messages: [
-      { id: 'c7m1', from: 'user', text: 'Hola, no puedo ingresar a mi cuenta', ts: '2024-06-19T15:30:00Z' },
-      { id: 'c7m2', from: 'admin', text: 'Hola buenas tardes. ¿Pudo solucionar su inconveniente? Quedamos a disposición.', ts: '2024-06-19T15:35:00Z' },
-    ],
-  },
-  {
-    id: 'c8',
-    username: 'Marcelo202605',
-    lastMessage: '¡Hola Marcelo202605! CBU: 000015150003240...',
-    timeAgo: '10d',
-    tags: ['Carga', 'Finalizar'],
-    messages: [
-      { id: 'c8m1', from: 'user', text: '¿Cuál es el CBU para transferir?', ts: '2024-06-16T10:00:00Z' },
-      { id: 'c8m2', from: 'admin', text: '¡Hola Marcelo202605! CBU: 0000151500032440 - Alias: DRBETING.ARG. ¡Cualquier consulta, estamos aquí!', ts: '2024-06-16T10:02:00Z' },
-    ],
-  },
-]
-
-const TAG_CLASS = { Soporte: 'bp-tag-blue', Finalizar: 'bp-tag-blue', Carga: 'bp-tag-green' }
-
+/* ── Helpers ───────────────────────────────────────────── */
 function initial(name) {
   return (name || '?').charAt(0).toUpperCase()
 }
 
+function timeAgo(unixSeconds) {
+  if (!unixSeconds) return ''
+  const diff = Math.floor(Date.now() / 1000) - unixSeconds
+  if (diff < 60) return 'ahora'
+  if (diff < 3600) return `${Math.floor(diff / 60)}m`
+  if (diff < 86400) return `${Math.floor(diff / 3600)}h`
+  return `${Math.floor(diff / 86400)}d`
+}
+
+/* ── Icons ─────────────────────────────────────────────── */
 function IcoRefresh() {
   return (
     <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14" aria-hidden="true">
@@ -137,55 +55,85 @@ function EmptyState({ label }) {
   )
 }
 
-function ChatPanel({ authUser, connectionStatus, displayName, messages: wsMessages, onSubmit }) {
-  const [activeChatId, setActiveChatId] = useState(null)
+/* ── Component ─────────────────────────────────────────── */
+function ChatPanel({ authUser, connectionStatus, socioId }) {
+  const [chats, setChats] = useState([])
+  const [loadingChats, setLoadingChats] = useState(false)
+  const [chatsError, setChatsError] = useState('')
+
+  const [activeChat, setActiveChat] = useState(null)
+  const [messages, setMessages] = useState([])
+  const [loadingMessages, setLoadingMessages] = useState(false)
+  const [messagesError, setMessagesError] = useState('')
+
   const [filter, setFilter] = useState('todos')
   const [searchQuery, setSearchQuery] = useState('')
   const [manualMode, setManualMode] = useState(false)
+
   const [inputText, setInputText] = useState('')
   const [sendStatus, setSendStatus] = useState({ pending: false, error: '' })
+
   const feedRef = useRef(null)
   const inputRef = useRef(null)
 
-  const activeChatData = MOCK_CHATS.find((c) => c.id === activeChatId) ?? null
+  /* ── Fetch chat list ─────────────────────────────────── */
+  const fetchChats = useCallback(async () => {
+    if (!socioId) return
+    setLoadingChats(true)
+    setChatsError('')
+    try {
+      const data = await api.getChatList(socioId)
+      const sorted = [...(data.chats || [])].sort(
+        (a, b) => b.fechaUltimoMensaje - a.fechaUltimoMensaje,
+      )
+      setChats(sorted)
+    } catch (err) {
+      setChatsError(err.message)
+    }
+    setLoadingChats(false)
+  }, [socioId])
 
-  // Merge mock messages with real-time WebSocket messages for the active chat
-  const liveMessages = activeChatData
-    ? [
-        ...activeChatData.messages,
-        ...wsMessages.map((m) => ({
-          id: `ws-${m.id}`,
-          from: m.author === (authUser || displayName) ? 'admin' : 'user',
-          text: m.text,
-          ts: m.createdAt,
-        })),
-      ]
-    : []
+  useEffect(() => {
+    fetchChats()
+  }, [fetchChats])
 
+  /* ── Select a chat → fetch history ──────────────────── */
+  const handleSelectChat = async (chat) => {
+    if (activeChat?.clienteId === chat.clienteId) return
+    setActiveChat(chat)
+    setMessages([])
+    setMessagesError('')
+    setLoadingMessages(true)
+    try {
+      const data = await api.getChatHistory(socioId, chat.clienteId)
+      const sorted = [...(data.mensajes || [])].sort((a, b) => a.fecha - b.fecha)
+      setMessages(sorted)
+    } catch (err) {
+      setMessagesError(err.message)
+    }
+    setLoadingMessages(false)
+  }
+
+  /* ── Scroll to bottom when messages change ───────────── */
   useEffect(() => {
     if (feedRef.current) {
       feedRef.current.scrollTop = feedRef.current.scrollHeight
     }
-  }, [liveMessages.length, activeChatId])
+  }, [messages.length, activeChat?.clienteId])
 
-  const visibleChats = MOCK_CHATS.filter((c) => {
-    if (filter !== 'todos') return false
-    if (searchQuery && !c.username.toLowerCase().includes(searchQuery.toLowerCase())) return false
+  /* ── Filter chat list ────────────────────────────────── */
+  const visibleChats = chats.filter((c) => {
+    if (filter === 'noleidos') return c.noLeidos > 0
+    if (filter === 'archivados') return c.estado === 'ARCHIVADO'
+    if (searchQuery && !c.nombre.toLowerCase().includes(searchQuery.toLowerCase())) return false
     return true
   })
 
+  /* ── Send (placeholder — no send API yet) ────────────── */
   const handleSend = async (e) => {
     e.preventDefault()
-    if (!inputText.trim()) return
-    setSendStatus({ pending: true, error: '' })
-    try {
-      await onSubmit({ author: authUser || displayName, text: inputText })
-      setInputText('')
-      setSendStatus({ pending: false, error: '' })
-      inputRef.current?.focus()
-    } catch (err) {
-      setSendStatus({ pending: false, error: err.message })
-    }
+    if (!inputText.trim() || !activeChat) return
+    setSendStatus({ pending: false, error: 'Envío de mensajes no disponible aún.' })
   }
 
   const handleKeyDown = (e) => {
@@ -213,7 +161,13 @@ function ChatPanel({ authUser, connectionStatus, displayName, messages: wsMessag
             <span className="bp-toggle-track" />
             <span className="bp-toggle-label">Manual</span>
           </label>
-          <button className="bp-refresh-btn" type="button" title="Actualizar">
+          <button
+            className="bp-refresh-btn"
+            type="button"
+            title="Actualizar"
+            disabled={loadingChats}
+            onClick={fetchChats}
+          >
             <IcoRefresh />
           </button>
         </div>
@@ -251,78 +205,101 @@ function ChatPanel({ authUser, connectionStatus, displayName, messages: wsMessag
 
         {/* Chat items */}
         <div className="bp-chat-items" role="listbox" aria-label="Conversaciones">
-          {visibleChats.map((chat) => (
+          {loadingChats && (
+            <p className="bp-no-chats">Cargando conversaciones...</p>
+          )}
+          {!loadingChats && chatsError && (
+            <p className="bp-no-chats" style={{ color: 'var(--bp-danger, #f87171)' }}>
+              {chatsError}
+            </p>
+          )}
+          {!loadingChats && !chatsError && visibleChats.map((chat) => (
             <button
-              key={chat.id}
+              key={chat.clienteId}
               role="option"
-              aria-selected={activeChatId === chat.id}
-              className={`bp-chat-item${activeChatId === chat.id ? ' active' : ''}`}
-              onClick={() => setActiveChatId(chat.id)}
+              aria-selected={activeChat?.clienteId === chat.clienteId}
+              className={`bp-chat-item${activeChat?.clienteId === chat.clienteId ? ' active' : ''}`}
+              onClick={() => handleSelectChat(chat)}
             >
-              <div className="bp-avatar">{initial(chat.username)}</div>
+              <div className="bp-avatar">{initial(chat.nombre)}</div>
               <div className="bp-chat-item-body">
                 <div className="bp-chat-item-top">
-                  <span className="bp-chat-username">{chat.username}</span>
-                  {chat.tags.map((tag) => (
-                    <span key={tag} className={`bp-tag ${TAG_CLASS[tag] ?? 'bp-tag-blue'}`}>
-                      {tag}
-                    </span>
-                  ))}
+                  <span className="bp-chat-username">{chat.nombre}</span>
+                  {chat.noLeidos > 0 && (
+                    <span className="bp-tag bp-tag-green">{chat.noLeidos}</span>
+                  )}
+                  {chat.estado && chat.estado !== 'ACTIVO' && (
+                    <span className="bp-tag bp-tag-blue">{chat.estado}</span>
+                  )}
                 </div>
-                <p className="bp-chat-preview">{chat.lastMessage}</p>
+                <p className="bp-chat-preview">{chat.ultimoMensaje}</p>
               </div>
-              <span className="bp-chat-time">{chat.timeAgo}</span>
+              <span className="bp-chat-time">{timeAgo(chat.fechaUltimoMensaje)}</span>
             </button>
           ))}
 
-          {visibleChats.length === 0 && (
-            <p className="bp-no-chats">No hay conversaciones{searchQuery ? ' con ese nombre' : ''}.</p>
+          {!loadingChats && !chatsError && visibleChats.length === 0 && (
+            <p className="bp-no-chats">
+              No hay conversaciones{searchQuery ? ' con ese nombre' : ''}.
+            </p>
           )}
         </div>
       </div>
 
       {/* ── Conversation area ──────────────────────────── */}
       <div className="bp-conv">
-        {!activeChatData ? (
+        {!activeChat ? (
           <EmptyState label="Selecciona un chat para comenzar" />
         ) : (
           <>
             {/* Conversation header */}
             <div className="bp-conv-header">
-              <div className="bp-avatar">{initial(activeChatData.username)}</div>
+              <div className="bp-avatar">{initial(activeChat.nombre)}</div>
               <div className="bp-conv-user-info">
-                <strong>{activeChatData.username}</strong>
+                <strong>{activeChat.nombre}</strong>
                 <span className={`bp-online-dot bp-conn-${connectionStatus}`}>
-                  {connectionStatus === 'connected' ? 'En línea' : 'Desconectado'}
+                  {activeChat.estado === 'ACTIVO' ? 'Activo' : activeChat.estado}
                 </span>
               </div>
               <div className="bp-conv-tags">
-                {activeChatData.tags.map((tag) => (
-                  <span key={tag} className={`bp-tag ${TAG_CLASS[tag] ?? 'bp-tag-blue'}`}>
-                    {tag}
-                  </span>
-                ))}
+                <span className="bp-tag bp-tag-blue">{activeChat.clienteId}</span>
               </div>
             </div>
 
             {/* Messages */}
             <div className="bp-conv-feed" ref={feedRef} role="log" aria-live="polite">
-              {liveMessages.map((msg) => (
-                <div key={msg.id} className={`bp-msg bp-msg-${msg.from}`}>
-                  {msg.from === 'user' && (
-                    <div className="bp-avatar bp-avatar-xs">{initial(activeChatData.username)}</div>
-                  )}
-                  <div className="bp-msg-bubble">
-                    <p>{msg.text}</p>
-                    <time dateTime={msg.ts}>{formatTimestamp(msg.ts)}</time>
-                  </div>
-                  {msg.from === 'admin' && (
-                    <div className="bp-avatar bp-avatar-xs bp-avatar-admin">
-                      {initial(authUser || 'Admin')}
+              {loadingMessages && (
+                <p style={{ textAlign: 'center', padding: '1rem', opacity: 0.6 }}>
+                  Cargando mensajes...
+                </p>
+              )}
+              {!loadingMessages && messagesError && (
+                <p style={{ textAlign: 'center', padding: '1rem', color: 'var(--bp-danger, #f87171)' }}>
+                  {messagesError}
+                </p>
+              )}
+              {!loadingMessages && messages.map((msg, idx) => {
+                const isAdmin = msg.sender === 'SOCIO'
+                const from = isAdmin ? 'admin' : 'user'
+                return (
+                  <div key={`${msg.fecha}-${idx}`} className={`bp-msg bp-msg-${from}`}>
+                    {!isAdmin && (
+                      <div className="bp-avatar bp-avatar-xs">{initial(activeChat.nombre)}</div>
+                    )}
+                    <div className="bp-msg-bubble">
+                      <p>{msg.mensaje}</p>
+                      <time dateTime={new Date(msg.fecha * 1000).toISOString()}>
+                        {formatTimestamp(msg.fecha * 1000)}
+                      </time>
                     </div>
-                  )}
-                </div>
-              ))}
+                    {isAdmin && (
+                      <div className="bp-avatar bp-avatar-xs bp-avatar-admin">
+                        {initial(authUser || 'Admin')}
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
             </div>
 
             {/* Composer */}
@@ -334,7 +311,7 @@ function ChatPanel({ authUser, connectionStatus, displayName, messages: wsMessag
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder={`Responder a ${activeChatData.username}...`}
+                placeholder={`Responder a ${activeChat.nombre}...`}
                 disabled={sendStatus.pending}
                 maxLength={240}
               />
@@ -354,20 +331,18 @@ function ChatPanel({ authUser, connectionStatus, displayName, messages: wsMessag
 
       {/* ── Right info panel ──────────────────────────── */}
       <div className="bp-info-panel">
-        {activeChatData ? (
+        {activeChat ? (
           <div className="bp-info-content">
-            <div className="bp-info-avatar">{initial(activeChatData.username)}</div>
-            <strong className="bp-info-name">{activeChatData.username}</strong>
+            <div className="bp-info-avatar">{initial(activeChat.nombre)}</div>
+            <strong className="bp-info-name">{activeChat.nombre}</strong>
             <div className="bp-info-tags">
-              {activeChatData.tags.map((tag) => (
-                <span key={tag} className={`bp-tag ${TAG_CLASS[tag] ?? 'bp-tag-blue'}`}>
-                  {tag}
-                </span>
-              ))}
+              <span className="bp-tag bp-tag-blue">{activeChat.clienteId}</span>
             </div>
             <dl className="bp-info-dl">
               <dt>Estado</dt>
-              <dd>{connectionStatus === 'connected' ? 'En línea' : 'Desconectado'}</dd>
+              <dd>{activeChat.estado}</dd>
+              <dt>No leídos</dt>
+              <dd>{activeChat.noLeidos}</dd>
               <dt>Canal</dt>
               <dd>Soporte</dd>
             </dl>

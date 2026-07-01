@@ -79,7 +79,7 @@ const NAV_FINANZAS = [
 ]
 
 function App() {
-  const { connectionStatus, dismissNotification, messages, notifications, profile, sendMessage } =
+  const { connectionStatus, dismissNotification, notifications } =
     useAppContext()
 
   const [isAuthenticated, setIsAuthenticated] = useState(
@@ -90,18 +90,27 @@ function App() {
   )
   const [activeNav, setActiveNav] = useState('chats')
 
+  const [socioId, setSocioId] = useState(
+    () => localStorage.getItem('beting-socio-id') || '',
+  )
+
   const handleLogin = (usuario) => {
     const displayName = usuario.nombre || usuario.correo || 'Admin'
+    const sid = usuario.ID || ''
     localStorage.setItem('beting-auth', 'true')
     localStorage.setItem('beting-user', displayName)
+    localStorage.setItem('beting-socio-id', sid)
     setIsAuthenticated(true)
     setAuthUser(displayName)
+    setSocioId(sid)
   }
 
   const handleLogout = () => {
     localStorage.removeItem('beting-auth')
     localStorage.removeItem('beting-user')
+    localStorage.removeItem('beting-socio-id')
     setIsAuthenticated(false)
+    setSocioId('')
   }
 
   if (!isAuthenticated) {
@@ -194,9 +203,7 @@ function App() {
           <ChatPanel
             authUser={authUser}
             connectionStatus={connectionStatus}
-            displayName={profile.displayName}
-            messages={messages}
-            onSubmit={sendMessage}
+            socioId={socioId}
           />
         ) : activeNav === 'cuentas' ? (
           <CuentasPage />

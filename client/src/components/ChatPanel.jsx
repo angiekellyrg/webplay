@@ -41,6 +41,48 @@ function IcoSend() {
     </svg>
   )
 }
+function IcoAttach() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="16" height="16" aria-hidden="true">
+      <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66L9.41 17.41a2 2 0 0 1-2.83-2.83l8.49-8.48" />
+    </svg>
+  )
+}
+function IcoPdf() {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20" aria-hidden="true">
+      <path d="M20 2H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-8.5 7.5c0 .83-.67 1.5-1.5 1.5H9v2H7.5V7H10c.83 0 1.5.67 1.5 1.5v1zm5 2c0 .83-.67 1.5-1.5 1.5h-2.5V7H15c.83 0 1.5.67 1.5 1.5v3zm4-3H19v1h1.5V11H19v2h-1.5V7h3v1.5zM9 9.5h1v-1H9v1zM4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm10 5.5h1v-3h-1v3z" />
+    </svg>
+  )
+}
+
+/* ── Message content renderer ──────────────────────────── */
+function MsgContent({ msg }) {
+  if (msg.tipo === 'imagen' && msg.imagen) {
+    return (
+      <a href={msg.imagen} target="_blank" rel="noopener noreferrer">
+        <img
+          src={msg.imagen}
+          alt="imagen"
+          style={{ maxWidth: '220px', maxHeight: '220px', borderRadius: '6px', display: 'block', cursor: 'pointer' }}
+        />
+      </a>
+    )
+  }
+  if (msg.tipo === 'pdf' && msg.imagen) {
+    return (
+      <a
+        href={msg.imagen}
+        download="documento.pdf"
+        style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'inherit', textDecoration: 'underline' }}
+      >
+        <IcoPdf />
+        <span>{msg.mensaje || 'documento.pdf'}</span>
+      </a>
+    )
+  }
+  return <p>{msg.mensaje}</p>
+}
 
 function EmptyState({ label }) {
   return (
@@ -75,6 +117,7 @@ function ChatPanel({ authUser, connectionStatus, socioId }) {
 
   const feedRef = useRef(null)
   const inputRef = useRef(null)
+  const fileInputRef = useRef(null)
 
   /* ── Fetch chat list ─────────────────────────────────── */
   const fetchChats = useCallback(async () => {
@@ -129,7 +172,7 @@ function ChatPanel({ authUser, connectionStatus, socioId }) {
     return true
   })
 
-  /* ── Send message ────────────────────────────────────── */
+  /* ── Send text message ───────────────────────────────── */
   const handleSend = async (e) => {
     e.preventDefault()
     if (!inputText.trim() || !activeChat || sendStatus.pending) return
@@ -143,10 +186,48 @@ function ChatPanel({ authUser, connectionStatus, socioId }) {
       setSendStatus({ pending: false, error: '' })
     } catch (err) {
       setSendStatus({ pending: false, error: err.message })
-      // remove optimistic message on failure
       setMessages((prev) => prev.filter((m) => m !== optimistic))
       setInputText(texto)
     }
+  }
+
+  /* ── Send file (image / pdf) ─────────────────────────── */
+  const handleFileSelect = async (e) => {
+    const file = e.target.files?.[0]
+    if (!file || !activeChat || sendStatus.pending) return
+    // reset so same file can be re-selected
+    e.target.value = ''
+
+    const isImage = file.type.startsWith('image/')
+    const isPdf = file.type === 'application/pdf'
+    if (!isImage && !isPdf) {
+      setSendStatus({ pending: false, error: 'Solo se permiten imágenes o archivos PDF.' })
+      return
+    }
+
+    const tipo = isImage ? 'imagen' : 'pdf'
+
+    const reader = new FileReader()
+    reader.onload = async () => {
+      const base64 = reader.result // data:<mime>;base64,<data>
+      setSendStatus({ pending: true, error: '' })
+      const optimistic = {
+        mensaje: file.name,
+        tipo,
+        imagen: base64,
+        sender: 'SOCIO',
+        fecha: Math.floor(Date.now() / 1000),
+      }
+      setMessages((prev) => [...prev, optimistic])
+      try {
+        await api.sendChatMessage(socioId, activeChat.clienteId, file.name, { tipo, imagen: base64 })
+        setSendStatus({ pending: false, error: '' })
+      } catch (err) {
+        setSendStatus({ pending: false, error: err.message })
+        setMessages((prev) => prev.filter((m) => m !== optimistic))
+      }
+    }
+    reader.readAsDataURL(file)
   }
 
   const handleKeyDown = (e) => {
@@ -300,7 +381,7 @@ function ChatPanel({ authUser, connectionStatus, socioId }) {
                       <div className="bp-avatar bp-avatar-xs">{initial(activeChat.nombre)}</div>
                     )}
                     <div className="bp-msg-bubble">
-                      <p>{msg.mensaje}</p>
+                      <MsgContent msg={msg} />
                       <time dateTime={new Date(msg.fecha * 1000).toISOString()}>
                         {formatTimestamp(msg.fecha * 1000)}
                       </time>
@@ -317,6 +398,24 @@ function ChatPanel({ authUser, connectionStatus, socioId }) {
 
             {/* Composer */}
             <form className="bp-composer" onSubmit={handleSend}>
+              {/* Hidden file input */}
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*,application/pdf"
+                style={{ display: 'none' }}
+                onChange={handleFileSelect}
+              />
+              <button
+                type="button"
+                className="bp-composer-attach"
+                title="Adjuntar imagen o PDF"
+                disabled={sendStatus.pending}
+                onClick={() => fileInputRef.current?.click()}
+                aria-label="Adjuntar archivo"
+              >
+                <IcoAttach />
+              </button>
               <input
                 ref={inputRef}
                 type="text"

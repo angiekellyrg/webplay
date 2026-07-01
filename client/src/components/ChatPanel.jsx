@@ -58,21 +58,23 @@ function IcoPdf() {
 
 /* ── Message content renderer ──────────────────────────── */
 function MsgContent({ msg }) {
-  if (msg.tipo === 'imagen' && msg.imagen) {
+  if (msg.tipo === 'imagen') {
+    const src = msg.imagen || msg.mensaje
     return (
-      <a href={msg.imagen} target="_blank" rel="noopener noreferrer">
+      <a href={src} target="_blank" rel="noopener noreferrer">
         <img
-          src={msg.imagen}
-          alt="imagen"
+          src={src}
+          alt="imagen enviada"
           style={{ maxWidth: '220px', maxHeight: '220px', borderRadius: '6px', display: 'block', cursor: 'pointer' }}
         />
       </a>
     )
   }
-  if (msg.tipo === 'pdf' && msg.imagen) {
+  if (msg.tipo === 'pdf') {
+    const href = msg.imagen || msg.mensaje
     return (
       <a
-        href={msg.imagen}
+        href={href}
         download="documento.pdf"
         style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'inherit', textDecoration: 'underline' }}
       >

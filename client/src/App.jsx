@@ -211,7 +211,7 @@ function App() {
         ) : activeNav === 'cuentas' ? (
           <CuentasPage />
         ) : activeNav === 'usuarios' ? (
-          <UsuariosPage />
+          <UsuariosPage socioId={socioId} />
         ) : activeNav === 'clientes' ? (
           <ClientesPage socioId={socioId} />
         ) : (

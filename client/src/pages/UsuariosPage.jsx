@@ -2,35 +2,88 @@ import { useCallback, useEffect, useReducer, useRef, useState } from 'react'
 
 import { api } from '../services/api'
 
-// ── Helpers ───────────────────────────────────────────────
 const ROLES = [
   { value: 'master', label: 'Master' },
   { value: 'admin', label: 'Admin' },
+  { value: 'usuario', label: 'Usuario' },
 ]
 
 const ESTADOS = [
-  { value: 'activo', label: 'Activo' },
-  { value: 'inactivo', label: 'Inactivo' },
+  { value: 'active', label: 'Activo' },
+  { value: 'inactive', label: 'Inactivo' },
 ]
 
+const PERMISO_KEYS = [
+  'chats',
+  'usuarios',
+  'clientes',
+  'retiros',
+  'comandos',
+  'mensajes',
+  'apis',
+  'cuentas',
+  'auditoria',
+  'notificaciones',
+  'pushAuto',
+  'eventos',
+  'bonos',
+  'metricas',
+  'ajustes',
+]
+
+const PERMISOS_DEFAULT = {
+  chats: true,
+  usuarios: true,
+  clientes: true,
+  retiros: false,
+  comandos: false,
+  mensajes: true,
+  apis: false,
+  cuentas: false,
+  auditoria: false,
+  notificaciones: true,
+  pushAuto: false,
+  eventos: false,
+  bonos: false,
+  metricas: false,
+  ajustes: false,
+}
+
 const EMPTY_FORM = {
-  email: '',
-  estado: 'activo',
+  apellido: '',
+  contrasena: '',
+  correo: '',
+  estatus: 'active',
+  fin: '',
+  inicio: '',
   nombre: '',
+  permisos: { ...PERMISOS_DEFAULT },
+  restriccion: '',
   rol: 'admin',
-  secciones: 'Todas',
   usuario: '',
 }
 
+function permissionsForRole(rol, permisos) {
+  if (rol === 'master') {
+    return PERMISO_KEYS.reduce((acc, key) => ({ ...acc, [key]: true }), {})
+  }
+  return PERMISO_KEYS.reduce((acc, key) => ({ ...acc, [key]: Boolean(permisos?.[key]) }), {})
+}
+
 function rolLabel(rol) {
-  return rol === 'master' ? 'Master' : 'Admin'
+  if (rol === 'master') return 'Master'
+  if (rol === 'admin') return 'Admin'
+  return 'Usuario'
 }
 
 function estadoLabel(estado) {
-  return estado === 'activo' ? 'Activo' : 'Inactivo'
+  return estado === 'active' ? 'Activo' : 'Inactivo'
 }
 
-// ── Icons ─────────────────────────────────────────────────
+function estadoClass(estado) {
+  return estado === 'active' ? 'activo' : 'inactivo'
+}
+
 function IcoClose() {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16" aria-hidden="true">
@@ -40,9 +93,8 @@ function IcoClose() {
   )
 }
 
-// ── Modal ─────────────────────────────────────────────────
-function UserModal({ initial, onClose, onSave, title }) {
-  const [form, setForm] = useState(() => ({ ...EMPTY_FORM, ...initial }))
+function UserModal({ onClose, onSave, title }) {
+  const [form, setForm] = useState(EMPTY_FORM)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const firstRef = useRef(null)
@@ -53,12 +105,20 @@ function UserModal({ initial, onClose, onSave, title }) {
 
   const set = (field) => (e) => setForm((f) => ({ ...f, [field]: e.target.value }))
 
+  const setPermiso = (key) => (e) =>
+    setForm((f) => ({ ...f, permisos: { ...f.permisos, [key]: e.target.checked } }))
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
     setLoading(true)
     try {
-      await onSave(form)
+      await onSave({
+        ...form,
+        fin: form.fin || null,
+        inicio: form.inicio || null,
+        permisos: permissionsForRole(form.rol, form.permisos),
+      })
       onClose()
     } catch (err) {
       setError(err.message)
@@ -69,7 +129,7 @@ function UserModal({ initial, onClose, onSave, title }) {
 
   return (
     <div className="ub-overlay" role="dialog" aria-modal="true" aria-label={title}>
-      <div className="ub-modal">
+      <div className="ub-modal ub-modal-wide">
         <div className="ub-modal-header">
           <h2 className="ub-modal-title">{title}</h2>
           <button className="ub-modal-close" onClick={onClose} title="Cerrar">
@@ -80,15 +140,24 @@ function UserModal({ initial, onClose, onSave, title }) {
         <form className="ub-modal-body" onSubmit={handleSubmit}>
           <div className="ub-form-grid">
             <div className="ub-field">
-              <label className="ub-field-label">NOMBRE COMPLETO</label>
+              <label className="ub-field-label">NOMBRE</label>
               <input
                 ref={firstRef}
                 className="ub-input"
                 required
                 maxLength={80}
-                placeholder="Ej. Admin drbeting"
                 value={form.nombre}
                 onChange={set('nombre')}
+              />
+            </div>
+            <div className="ub-field">
+              <label className="ub-field-label">APELLIDO</label>
+              <input
+                className="ub-input"
+                required
+                maxLength={80}
+                value={form.apellido}
+                onChange={set('apellido')}
               />
             </div>
             <div className="ub-field">
@@ -97,22 +166,33 @@ function UserModal({ initial, onClose, onSave, title }) {
                 className="ub-input"
                 required
                 maxLength={40}
-                placeholder="Ej. admin"
                 value={form.usuario}
                 onChange={set('usuario')}
                 autoComplete="off"
               />
             </div>
-            <div className="ub-field ub-field-full">
-              <label className="ub-field-label">EMAIL</label>
+            <div className="ub-field">
+              <label className="ub-field-label">CORREO</label>
               <input
                 className="ub-input"
                 type="email"
+                required
                 maxLength={120}
-                placeholder="Ej. admin@casino.local"
-                value={form.email}
-                onChange={set('email')}
+                value={form.correo}
+                onChange={set('correo')}
                 autoComplete="off"
+              />
+            </div>
+            <div className="ub-field">
+              <label className="ub-field-label">CONTRASEÑA</label>
+              <input
+                className="ub-input"
+                type="password"
+                required
+                maxLength={120}
+                value={form.contrasena}
+                onChange={set('contrasena')}
+                autoComplete="new-password"
               />
             </div>
             <div className="ub-field">
@@ -125,22 +205,41 @@ function UserModal({ initial, onClose, onSave, title }) {
             </div>
             <div className="ub-field">
               <label className="ub-field-label">ESTADO</label>
-              <select className="ub-select" value={form.estado} onChange={set('estado')}>
+              <select className="ub-select" value={form.estatus} onChange={set('estatus')}>
                 {ESTADOS.map((s) => (
                   <option key={s.value} value={s.value}>{s.label}</option>
                 ))}
               </select>
             </div>
-            <div className="ub-field ub-field-full">
-              <label className="ub-field-label">SECCIONES</label>
+            <div className="ub-field">
+              <label className="ub-field-label">RESTRICCIÓN</label>
               <input
                 className="ub-input"
                 maxLength={120}
-                placeholder="Todas"
-                value={form.secciones}
-                onChange={set('secciones')}
+                value={form.restriccion}
+                onChange={set('restriccion')}
               />
             </div>
+          </div>
+
+          <div className="ub-field ub-field-full">
+            <label className="ub-field-label">PERMISOS</label>
+            {form.rol === 'master' ? (
+              <p className="ub-help-text">Master envía todas las secciones activas por defecto.</p>
+            ) : (
+              <div className="ub-permisos-grid">
+                {PERMISO_KEYS.map((key) => (
+                  <label className="ub-perm-item" key={key}>
+                    <input
+                      checked={Boolean(form.permisos[key])}
+                      onChange={setPermiso(key)}
+                      type="checkbox"
+                    />
+                    <span>{key}</span>
+                  </label>
+                ))}
+              </div>
+            )}
           </div>
 
           {error && <p className="ub-form-error">{error}</p>}
@@ -159,64 +258,81 @@ function UserModal({ initial, onClose, onSave, title }) {
   )
 }
 
-// ── Main page ─────────────────────────────────────────────
+function normalizeUser(user, index) {
+  return {
+    ...user,
+    apellido: user.apellido || '',
+    correo: user.correo || user.email || '',
+    estatus: user.estatus === 'inactive' ? 'inactive' : 'active',
+    id: user.id || `${user.usuario || user.correo || 'u'}-${index}`,
+    nombre: user.nombre || '',
+    rol: user.rol || 'usuario',
+    usuario: user.usuario || '',
+  }
+}
+
 function usersReducer(state, action) {
   switch (action.type) {
     case 'SET': return action.users
-    case 'ADD': return [...state, action.user]
-    case 'UPDATE': return state.map((u) => (u.id === action.user.id ? action.user : u))
+    case 'ADD': return [action.user, ...state]
     default: return state
   }
 }
 
-function UsuariosPage() {
+function UsuariosPage({ socioId }) {
   const [users, dispatch] = useReducer(usersReducer, [])
   const [loading, setLoading] = useState(true)
-  const [modal, setModal] = useState(null) // null | { mode: 'create' } | { mode: 'edit', user }
+  const [modal, setModal] = useState(null)
   const [search, setSearch] = useState('')
 
   const load = useCallback(async () => {
+    if (!socioId) {
+      dispatch({ type: 'SET', users: [] })
+      setLoading(false)
+      return
+    }
+
     setLoading(true)
     try {
-      const data = await api.getUsers()
-      dispatch({ type: 'SET', users: data.users })
+      const data = await api.getPanelUsers(socioId)
+      const normalized = (data.usuarios || [])
+        .map(normalizeUser)
+        .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0))
+      dispatch({ type: 'SET', users: normalized })
     } catch {
-      /* ignore */
+      dispatch({ type: 'SET', users: [] })
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [socioId])
 
   useEffect(() => { load() }, [load])
 
   const handleCreate = async (form) => {
-    const data = await api.createUser(form)
-    dispatch({ type: 'ADD', user: data.user })
-  }
-
-  const handleUpdate = async (form) => {
-    const data = await api.updateUser(modal.user.id, form)
-    dispatch({ type: 'UPDATE', user: data.user })
+    if (!socioId) {
+      throw new Error('No se encontró ID del socio.')
+    }
+    await api.createPanelUser(socioId, form)
+    await load()
   }
 
   const visible = users.filter((u) => {
     if (!search) return true
     const q = search.toLowerCase()
     return (
-      u.nombre.toLowerCase().includes(q) ||
+      `${u.nombre} ${u.apellido}`.toLowerCase().includes(q) ||
       u.usuario.toLowerCase().includes(q) ||
-      u.email.toLowerCase().includes(q)
+      u.correo.toLowerCase().includes(q)
     )
   })
 
   const total = users.length
-  const activos = users.filter((u) => u.estado === 'activo').length
+  const activos = users.filter((u) => u.estatus === 'active').length
   const masters = users.filter((u) => u.rol === 'master').length
   const admins = users.filter((u) => u.rol === 'admin').length
 
   return (
     <div className="ub-page">
-      {/* Stats */}
       <div className="bp-stat-grid">
         <div className="bp-stat-card">
           <span className="bp-stat-label">Total Usuarios</span>
@@ -236,7 +352,6 @@ function UsuariosPage() {
         </div>
       </div>
 
-      {/* Table section */}
       <div className="ub-section">
         <div className="ub-section-header">
           <h2 className="ub-section-title">Listado de Usuarios</h2>
@@ -248,10 +363,7 @@ function UsuariosPage() {
               onChange={(e) => setSearch(e.target.value)}
               aria-label="Buscar usuario"
             />
-            <button
-              className="ub-btn-gold"
-              onClick={() => setModal({ mode: 'create' })}
-            >
+            <button className="ub-btn-gold" onClick={() => setModal({ mode: 'create' })}>
               + Nuevo Usuario
             </button>
           </div>
@@ -269,9 +381,8 @@ function UsuariosPage() {
                   <th>#</th>
                   <th>NOMBRE</th>
                   <th>USUARIO</th>
-                  <th>EMAIL</th>
+                  <th>CORREO</th>
                   <th>ROL</th>
-                  <th>SECCIONES</th>
                   <th>ESTADO</th>
                   <th>ACCIONES</th>
                 </tr>
@@ -280,25 +391,21 @@ function UsuariosPage() {
                 {visible.map((user, idx) => (
                   <tr key={user.id}>
                     <td className="ub-td-num">{idx + 1}</td>
-                    <td>{user.nombre}</td>
-                    <td>{user.usuario}</td>
-                    <td className="ub-td-email">{user.email || '—'}</td>
+                    <td>{`${user.nombre} ${user.apellido}`.trim() || '—'}</td>
+                    <td>{user.usuario || '—'}</td>
+                    <td className="ub-td-email">{user.correo || '—'}</td>
                     <td>
                       <span className={`ub-badge ub-badge-${user.rol}`}>
                         {rolLabel(user.rol)}
                       </span>
                     </td>
-                    <td>{user.secciones}</td>
                     <td>
-                      <span className={`ub-badge ub-badge-estado-${user.estado}`}>
-                        {estadoLabel(user.estado)}
+                      <span className={`ub-badge ub-badge-estado-${estadoClass(user.estatus)}`}>
+                        {estadoLabel(user.estatus)}
                       </span>
                     </td>
                     <td>
-                      <button
-                        className="ub-btn-edit"
-                        onClick={() => setModal({ mode: 'edit', user })}
-                      >
+                      <button className="ub-btn-edit" disabled>
                         Editar
                       </button>
                     </td>
@@ -310,20 +417,10 @@ function UsuariosPage() {
         </div>
       </div>
 
-      {/* Modals */}
       {modal?.mode === 'create' && (
         <UserModal
           title="Nuevo Usuario"
-          initial={EMPTY_FORM}
           onSave={handleCreate}
-          onClose={() => setModal(null)}
-        />
-      )}
-      {modal?.mode === 'edit' && (
-        <UserModal
-          title="Editar Usuario"
-          initial={modal.user}
-          onSave={handleUpdate}
           onClose={() => setModal(null)}
         />
       )}

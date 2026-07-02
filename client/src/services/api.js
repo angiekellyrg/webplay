@@ -65,6 +65,8 @@ const api = {
     chatRequest('/chat/send', { socioId, clienteId, mensaje, sender: 'SOCIO', ...extraFields }),
   getHgcashConfig: () => request('/api/hgcash/config'),
   getMessages: () => request('/api/chat/messages'),
+  getPanelUsers: (ID) =>
+    chatRequest('/chat/send', { op: 'listarusuariosadmin', ID }),
   sendMessage: (input) =>
     request('/api/chat/messages', {
       body: JSON.stringify(input),
@@ -93,6 +95,8 @@ const api = {
       body: JSON.stringify(input),
       method: 'PUT',
     }),
+  createPanelUser: (ID, input) =>
+    chatRequest('/chat/send', { op: 'crearusuariopanel', ID, ...input }),
   getClientes: (socioId) =>
     chatRequest('/chat/send', { op: 'listarusuarios', socioId }),
   createCliente: (socioId, input) =>

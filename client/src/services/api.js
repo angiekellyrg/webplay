@@ -93,6 +93,10 @@ const api = {
       body: JSON.stringify(input),
       method: 'PUT',
     }),
+  getClientes: (socioId) =>
+    chatRequest('/chat/send', { op: 'listarusuarios', socioId }),
+  createCliente: (socioId, input) =>
+    chatRequest('/chat/send', { op: 'agregarusuario', socioId, ...input }),
 }
 
 export { API_BASE_URL, api }

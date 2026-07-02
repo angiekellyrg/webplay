@@ -4,6 +4,7 @@ import './App.css'
 import ChatPanel from './components/ChatPanel'
 import NotificationsTray from './components/NotificationsTray'
 import { useAppContext } from './context/useAppContext'
+import ClientesPage from './pages/ClientesPage'
 import CuentasPage from './pages/CuentasPage'
 import LoginPage from './pages/LoginPage'
 import UsuariosPage from './pages/UsuariosPage'
@@ -178,6 +179,8 @@ function App() {
               ? 'Cuentas Bancarias'
               : activeNav === 'usuarios'
               ? 'Usuarios'
+              : activeNav === 'clientes'
+              ? 'Clientes'
               : activeNav.charAt(0).toUpperCase() + activeNav.slice(1)}
           </h1>
           <div className="bp-header-right">
@@ -209,6 +212,8 @@ function App() {
           <CuentasPage />
         ) : activeNav === 'usuarios' ? (
           <UsuariosPage />
+        ) : activeNav === 'clientes' ? (
+          <ClientesPage socioId={socioId} />
         ) : (
           <div className="bp-placeholder">
             <div className="bp-placeholder-icon">🚧</div>

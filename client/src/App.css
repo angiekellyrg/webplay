@@ -1864,3 +1864,148 @@
 .ub-search-input::placeholder {
   color: #4b5563;
 }
+
+/* ── Clientes page ──────────────────────────────────────── */
+.cb-modal-wide {
+  width: min(680px, 100%);
+}
+
+.cb-clientes-header {
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.cb-section-label {
+  font-size: 0.9rem;
+  color: #9ca3af;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.cb-btn-csv {
+  border: 0;
+  border-radius: 10px;
+  padding: 0.65rem 1.1rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: opacity 0.15s, transform 0.1s;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.cb-btn-csv:hover {
+  opacity: 0.88;
+  transform: translateY(-1px);
+}
+
+.cb-btn-csv-download {
+  background: #16a34a;
+  color: #fff;
+}
+
+.cb-btn-csv-import {
+  background: #0891b2;
+  color: #fff;
+}
+
+.cb-hidden-input {
+  display: none;
+}
+
+.cb-actions {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.cb-btn-delete {
+  background: #dc2626;
+  border: 0;
+  border-radius: 8px;
+  color: #fff;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.cb-btn-delete:hover:not(:disabled) {
+  opacity: 0.85;
+}
+
+.cb-btn-delete:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.cb-badge-activo {
+  background: rgba(34, 197, 94, 0.15);
+  color: #86efac;
+}
+
+.cb-badge-vip {
+  background: rgba(201, 168, 67, 0.2);
+  color: #c9a843;
+}
+
+.cb-badge-inactivo {
+  background: rgba(107, 114, 128, 0.2);
+  color: #9ca3af;
+}
+
+.cb-cuit {
+  color: #c9a843;
+  font-size: 0.85rem;
+}
+
+.cb-row:hover td {
+  background: rgba(255, 255, 255, 0.025);
+}
+
+/* Detail sub-row */
+.cb-detail-row td {
+  background: #15171e;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #1f2030;
+}
+
+.cb-detail-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+
+.cb-detail-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 120px;
+}
+
+.cb-detail-wide {
+  flex: 1;
+  min-width: 200px;
+}
+
+.cb-detail-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  color: #c9a843;
+  text-transform: uppercase;
+}
+
+.cb-detail-value {
+  font-size: 0.85rem;
+  color: #d1d5db;
+}
+
+.cb-detail-mono {
+  font-family: 'Courier New', monospace;
+  color: #60a5fa;
+  font-size: 0.82rem;
+}

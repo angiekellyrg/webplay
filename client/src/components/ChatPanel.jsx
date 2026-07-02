@@ -553,8 +553,30 @@ function ChatPanel({ authUser, connectionStatus, socioId }) {
               </div>
             )}
 
+            {/* MEDIA tab */}
+            {infoTab === 'media' && (
+              (() => {
+                const imageMessages = messages.filter((m) => m.tipo === 'imagen')
+                if (imageMessages.length === 0) {
+                  return <p className="bp-info-placeholder">Sin datos disponibles.</p>
+                }
+                return (
+                  <div className="bp-media-grid">
+                    {imageMessages.map((m, i) => {
+                      const src = m.imagen || m.mensaje
+                      return (
+                        <a key={i} href={src} target="_blank" rel="noopener noreferrer" className="bp-media-thumb">
+                          <img src={src} alt="media" />
+                        </a>
+                      )
+                    })}
+                  </div>
+                )
+              })()
+            )}
+
             {/* Other tabs – placeholder */}
-            {infoTab !== 'informacion' && (
+            {infoTab !== 'informacion' && infoTab !== 'media' && (
               <p className="bp-info-placeholder">Sin datos disponibles.</p>
             )}
           </>

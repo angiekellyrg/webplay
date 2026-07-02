@@ -884,7 +884,7 @@
 
 /* ── Right info panel ───────────────────────────────────── */
 .bp-info-panel {
-  width: 260px;
+  width: 420px;
   flex-shrink: 0;
   background: #0d0e14;
   display: flex;
@@ -895,8 +895,8 @@
 .bp-info-content {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
-  padding: 1rem 1.25rem;
+  gap: 1rem;
+  padding: 1.25rem 1.4rem 1.5rem;
   overflow-y: auto;
 }
 
@@ -963,23 +963,23 @@
 .bp-info-tabs {
   display: flex;
   flex-wrap: wrap;
-  gap: 2px;
-  padding: 0.75rem 0.75rem 0;
-  border-bottom: 1px solid #1c1d25;
+  gap: 0.65rem;
+  padding: 1.1rem 1.1rem 0;
   flex-shrink: 0;
 }
 
 .bp-info-tab {
-  background: none;
-  border: 0;
-  border-bottom: 2px solid transparent;
-  color: #6b7280;
-  font-size: 0.65rem;
+  background: #12141d;
+  border: 1px solid #232635;
+  border-radius: 14px;
+  color: #9ca3af;
+  font-size: 0.62rem;
   font-weight: 700;
   letter-spacing: 0.06em;
-  padding: 0.35rem 0.5rem 0.45rem;
+  min-width: 100px;
+  padding: 0.72rem 0.95rem;
   cursor: pointer;
-  transition: color 0.15s, border-color 0.15s;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
   white-space: nowrap;
 }
 
@@ -989,12 +989,90 @@
 
 .bp-info-tab.active {
   color: #c9a843;
-  border-bottom-color: #c9a843;
+  border-color: #c9a843;
+  background: rgba(201, 168, 67, 0.12);
+}
+
+.bp-info-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
+}
+
+.bp-info-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.bp-info-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.bp-info-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #697082;
+  font-weight: 700;
+}
+
+.bp-info-value {
+  font-size: 0.98rem;
+  line-height: 1.25;
+  color: #d1d5db;
+}
+
+.bp-info-muted {
+  color: #7f8798;
 }
 
 .bp-info-cuit {
   color: #c9a843;
-  font-weight: 600;
+  font-weight: 700;
+}
+
+.bp-info-edit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #ff8a4c;
+}
+
+.bp-info-pill {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  border-radius: 999px;
+  padding: 0.18rem 0.7rem;
+  font-size: 0.9rem;
+  line-height: 1.2;
+  color: #7fb0ff;
+  background: rgba(42, 104, 217, 0.25);
+}
+
+.bp-info-note {
+  width: 100%;
+  min-height: 86px;
+  resize: vertical;
+  border: 1px solid #303548;
+  border-radius: 12px;
+  background: #181b27;
+  color: #d1d5db;
+  padding: 0.9rem 1rem;
+  font: inherit;
+}
+
+.bp-info-note::placeholder {
+  color: #7a8092;
+}
+
+.bp-info-note:focus {
+  outline: none;
+  border-color: #3d445c;
 }
 
 /* ── Notification tray (kept for NotificationsTray.jsx) ─── */

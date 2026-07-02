@@ -55,6 +55,14 @@ function IcoPdf() {
     </svg>
   )
 }
+function IcoEdit() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="14" height="14" aria-hidden="true">
+      <path d="M12 20h9" />
+      <path d="M16.5 3.5a2.12 2.12 0 1 1 3 3L7 19l-4 1 1-4 12.5-12.5z" />
+    </svg>
+  )
+}
 
 /* ── Message content renderer ──────────────────────────── */
 function MsgContent({ msg }) {
@@ -454,7 +462,7 @@ function ChatPanel({ authUser, connectionStatus, socioId }) {
             {/* Tab bar */}
             <div className="bp-info-tabs" role="tablist">
               {[
-                { id: 'informacion', label: 'INFORMACIÓN' },
+                { id: 'informacion', label: 'INFORMACION' },
                 { id: 'pagos', label: 'PAGOS' },
                 { id: 'casino', label: 'CASINO' },
                 { id: 'fingerprint', label: 'FINGERPRINT' },
@@ -476,30 +484,72 @@ function ChatPanel({ authUser, connectionStatus, socioId }) {
             {/* INFORMACIÓN tab content */}
             {infoTab === 'informacion' && (
               <div className="bp-info-content">
-                <dl className="bp-info-dl">
-                  <dt>USUARIO</dt>
-                  <dd>{clienteInfo?.usuarioCasino || activeChat.nombre || '—'}</dd>
-                  <dt>NOMBRE</dt>
-                  <dd>{clienteInfo ? `${clienteInfo.nombre} ${clienteInfo.apellido}`.trim() : activeChat.nombre || '—'}</dd>
-                  <dt>TELÉFONO</dt>
-                  <dd>{clienteInfo?.telefono || '—'}</dd>
-                  <dt>CUIL / CUIT</dt>
-                  <dd className="bp-info-cuit">{clienteInfo?.cuit || '—'}</dd>
-                  <dt>EMAIL</dt>
-                  <dd>{clienteInfo?.email || '—'}</dd>
-                  <dt>SALDO</dt>
-                  <dd>{clienteInfo?.saldo != null ? clienteInfo.saldo : '—'}</dd>
-                  <dt>SALDO COBRABLE</dt>
-                  <dd>{clienteInfo?.saldoCobrable != null ? clienteInfo.saldoCobrable : '—'}</dd>
-                  <dt>WAGER</dt>
-                  <dd>{clienteInfo?.wager != null ? clienteInfo.wager : '—'}</dd>
-                  <dt>ESTADO</dt>
-                  <dd>{clienteInfo?.estado || activeChat.estado || '—'}</dd>
-                  <dt>SOCIO ID</dt>
-                  <dd>{clienteInfo?.socioId || socioId || '—'}</dd>
-                  <dt>FECHA REGISTRO</dt>
-                  <dd>{clienteInfo?.createdAt ? new Date(clienteInfo.createdAt * 1000).toLocaleString('es-AR') : '—'}</dd>
-                </dl>
+                <div className="bp-info-fields">
+                  <div className="bp-info-field">
+                    <span className="bp-info-label">USUARIO</span>
+                    <span className="bp-info-value">{clienteInfo?.usuarioCasino || activeChat.nombre || '—'}</span>
+                  </div>
+                  <div className="bp-info-field">
+                    <div className="bp-info-label-row">
+                      <span className="bp-info-label">NOMBRE</span>
+                      <span className="bp-info-edit" aria-hidden="true">
+                        <IcoEdit />
+                      </span>
+                    </div>
+                    <span className="bp-info-value">
+                      {clienteInfo ? `${clienteInfo.nombre} ${clienteInfo.apellido}`.trim() : activeChat.nombre || '—'}
+                    </span>
+                  </div>
+                  <div className="bp-info-field">
+                    <span className="bp-info-label">TELEFONO</span>
+                    <span className="bp-info-value">{clienteInfo?.telefono || '—'}</span>
+                  </div>
+                  <div className="bp-info-field">
+                    <div className="bp-info-label-row">
+                      <span className="bp-info-label">CUIL / CUIT</span>
+                      <span className="bp-info-edit" aria-hidden="true">
+                        <IcoEdit />
+                      </span>
+                    </div>
+                    <span className="bp-info-value bp-info-cuit">{clienteInfo?.cuit || '—'}</span>
+                  </div>
+                  <div className="bp-info-field">
+                    <span className="bp-info-label">CANAL</span>
+                    <span className="bp-info-value">{activeChat?.canal || 'Web'}</span>
+                  </div>
+                  <div className="bp-info-field">
+                    <span className="bp-info-label">ESTADO DEL FLUJO</span>
+                    <span className="bp-info-pill">{activeChat?.estadoFlujo || 'Opciones'}</span>
+                  </div>
+                  <div className="bp-info-field">
+                    <span className="bp-info-label">ETIQUETAS</span>
+                    <span className="bp-info-value bp-info-muted">{activeChat?.etiquetas || 'Sin asignar'}</span>
+                  </div>
+                  <div className="bp-info-field">
+                    <span className="bp-info-label">FECHA REGISTRO</span>
+                    <span className="bp-info-value">
+                      {clienteInfo?.createdAt
+                        ? new Date(clienteInfo.createdAt * 1000).toLocaleString('es-AR', {
+                            day: 'numeric',
+                            month: 'numeric',
+                            year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            second: '2-digit',
+                            hour12: false,
+                          })
+                        : '—'}
+                    </span>
+                  </div>
+                  <div className="bp-info-field">
+                    <span className="bp-info-label">NOTA</span>
+                    <textarea
+                      className="bp-info-note"
+                      placeholder="Agrega una nota interna sobre el cliente..."
+                      rows="3"
+                    />
+                  </div>
+                </div>
               </div>
             )}
 

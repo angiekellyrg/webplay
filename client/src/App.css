@@ -895,9 +895,9 @@
 .bp-info-content {
   display: flex;
   flex-direction: column;
-  align-items: center;
   gap: 0.75rem;
-  padding: 2rem 1.25rem;
+  padding: 1rem 1.25rem;
+  overflow-y: auto;
 }
 
 .bp-info-avatar {
@@ -957,6 +957,44 @@
   font-size: 0.9rem;
   color: #374151;
   text-align: center;
+}
+
+/* ── Info panel tabs ────────────────────────────────────── */
+.bp-info-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  padding: 0.75rem 0.75rem 0;
+  border-bottom: 1px solid #1c1d25;
+  flex-shrink: 0;
+}
+
+.bp-info-tab {
+  background: none;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  color: #6b7280;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  padding: 0.35rem 0.5rem 0.45rem;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+  white-space: nowrap;
+}
+
+.bp-info-tab:hover {
+  color: #d1d5db;
+}
+
+.bp-info-tab.active {
+  color: #c9a843;
+  border-bottom-color: #c9a843;
+}
+
+.bp-info-cuit {
+  color: #c9a843;
+  font-weight: 600;
 }
 
 /* ── Notification tray (kept for NotificationsTray.jsx) ─── */

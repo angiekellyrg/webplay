@@ -106,6 +106,7 @@ function ChatPanel({ authUser, connectionStatus, socioId }) {
   const [chatsError, setChatsError] = useState('')
 
   const [activeChat, setActiveChat] = useState(null)
+  const [clienteInfo, setClienteInfo] = useState(null)
   const [messages, setMessages] = useState([])
   const [loadingMessages, setLoadingMessages] = useState(false)
   const [messagesError, setMessagesError] = useState('')
@@ -113,6 +114,7 @@ function ChatPanel({ authUser, connectionStatus, socioId }) {
   const [filter, setFilter] = useState('todos')
   const [searchQuery, setSearchQuery] = useState('')
   const [manualMode, setManualMode] = useState(false)
+  const [infoTab, setInfoTab] = useState('informacion')
 
   const [inputText, setInputText] = useState('')
   const [sendStatus, setSendStatus] = useState({ pending: false, error: '' })
@@ -146,6 +148,7 @@ function ChatPanel({ authUser, connectionStatus, socioId }) {
   const handleSelectChat = async (chat) => {
     if (activeChat?.clienteId === chat.clienteId) return
     setActiveChat(chat)
+    setClienteInfo(null)
     setMessages([])
     setMessagesError('')
     setLoadingMessages(true)
@@ -153,6 +156,7 @@ function ChatPanel({ authUser, connectionStatus, socioId }) {
       const data = await api.getChatHistory(socioId, chat.clienteId)
       const sorted = [...(data?.mensajes || [])].sort((a, b) => a.fecha - b.fecha)
       setMessages(sorted)
+      if (data?.cliente) setClienteInfo(data.cliente)
     } catch (err) {
       setMessagesError(err.message)
     }
@@ -446,21 +450,64 @@ function ChatPanel({ authUser, connectionStatus, socioId }) {
       {/* ── Right info panel ──────────────────────────── */}
       <div className="bp-info-panel">
         {activeChat ? (
-          <div className="bp-info-content">
-            <div className="bp-info-avatar">{initial(activeChat.nombre)}</div>
-            <strong className="bp-info-name">{activeChat.nombre}</strong>
-            <div className="bp-info-tags">
-              <span className="bp-tag bp-tag-blue">{activeChat.clienteId}</span>
+          <>
+            {/* Tab bar */}
+            <div className="bp-info-tabs" role="tablist">
+              {[
+                { id: 'informacion', label: 'INFORMACIÓN' },
+                { id: 'pagos', label: 'PAGOS' },
+                { id: 'casino', label: 'CASINO' },
+                { id: 'fingerprint', label: 'FINGERPRINT' },
+                { id: 'media', label: 'MEDIA' },
+                { id: 'regalo', label: 'REGALO' },
+              ].map(({ id, label }) => (
+                <button
+                  key={id}
+                  role="tab"
+                  aria-selected={infoTab === id}
+                  className={`bp-info-tab${infoTab === id ? ' active' : ''}`}
+                  onClick={() => setInfoTab(id)}
+                >
+                  {label}
+                </button>
+              ))}
             </div>
-            <dl className="bp-info-dl">
-              <dt>Estado</dt>
-              <dd>{activeChat.estado}</dd>
-              <dt>No leídos</dt>
-              <dd>{activeChat.noLeidos}</dd>
-              <dt>Canal</dt>
-              <dd>Soporte</dd>
-            </dl>
-          </div>
+
+            {/* INFORMACIÓN tab content */}
+            {infoTab === 'informacion' && (
+              <div className="bp-info-content">
+                <dl className="bp-info-dl">
+                  <dt>USUARIO</dt>
+                  <dd>{clienteInfo?.usuarioCasino || activeChat.nombre || '—'}</dd>
+                  <dt>NOMBRE</dt>
+                  <dd>{clienteInfo ? `${clienteInfo.nombre} ${clienteInfo.apellido}`.trim() : activeChat.nombre || '—'}</dd>
+                  <dt>TELÉFONO</dt>
+                  <dd>{clienteInfo?.telefono || '—'}</dd>
+                  <dt>CUIL / CUIT</dt>
+                  <dd className="bp-info-cuit">{clienteInfo?.cuit || '—'}</dd>
+                  <dt>EMAIL</dt>
+                  <dd>{clienteInfo?.email || '—'}</dd>
+                  <dt>SALDO</dt>
+                  <dd>{clienteInfo?.saldo != null ? clienteInfo.saldo : '—'}</dd>
+                  <dt>SALDO COBRABLE</dt>
+                  <dd>{clienteInfo?.saldoCobrable != null ? clienteInfo.saldoCobrable : '—'}</dd>
+                  <dt>WAGER</dt>
+                  <dd>{clienteInfo?.wager != null ? clienteInfo.wager : '—'}</dd>
+                  <dt>ESTADO</dt>
+                  <dd>{clienteInfo?.estado || activeChat.estado || '—'}</dd>
+                  <dt>SOCIO ID</dt>
+                  <dd>{clienteInfo?.socioId || socioId || '—'}</dd>
+                  <dt>FECHA REGISTRO</dt>
+                  <dd>{clienteInfo?.createdAt ? new Date(clienteInfo.createdAt * 1000).toLocaleString('es-AR') : '—'}</dd>
+                </dl>
+              </div>
+            )}
+
+            {/* Other tabs – placeholder */}
+            {infoTab !== 'informacion' && (
+              <p className="bp-info-placeholder">Sin datos disponibles.</p>
+            )}
+          </>
         ) : (
           <p className="bp-info-placeholder">Selecciona un chat para comenzar.</p>
         )}
